@@ -17,6 +17,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
@@ -166,11 +167,11 @@ public class Query<T> implements Specification<T> {
 		//ListJoin roles = root.joinList("roles", JoinType.LEFT);
 
 		//predicate = roles.get("code").in("admin");
-
 		//delete filter if value = null
 		//removeNullQueryParams();
 //		criteriaQuery.multiselect(root.get("status"));
 //		criteriaQuery.groupBy(root.get("status"));
+		predicate = criteriaBuilder.greaterThan(root.get("code"), "1");
 		try {
 			addJoin(joinFilters, root);
 			if (queryInfoObject != null) {

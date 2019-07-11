@@ -3,6 +3,7 @@ package ns.boot.jpa.utils.entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
 /**
@@ -10,6 +11,7 @@ import javax.persistence.ManyToOne;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
+@Entity
 public class SalesOrder extends BaseEntity{
 
 	@ManyToOne

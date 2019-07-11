@@ -22,7 +22,6 @@ public abstract class BaseEntity {
 	private String id;
 	@Column(unique = true)
 	private String code;
-	@Temporal(TemporalType.TIMESTAMP)
 	private LocalDate createDate;
 
 }
