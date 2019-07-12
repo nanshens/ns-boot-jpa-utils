@@ -15,7 +15,4 @@ import javax.persistence.ManyToOne;
 public class Address extends BaseEntity{
 	private String city;
 	private String phone;
-
-	@ManyToOne
-	private Customer customer;
 }

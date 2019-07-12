@@ -11,7 +11,7 @@ import ns.boot.jpa.utils.jpa.enums.QueryOrderDirection;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class QueryOrderFilter {
+public class QueryOrder {
 
     private String name;
     private QueryOrderDirection direction = QueryOrderDirection.Desc;
@@ -19,12 +19,12 @@ public class QueryOrderFilter {
 
 
 
-    public static QueryOrderFilter desc(String name) {
-        return new QueryOrderFilter(name, QueryOrderDirection.Desc);
+    public static QueryOrder desc(String name) {
+        return new QueryOrder(name, QueryOrderDirection.Desc);
     }
 
-    public static QueryOrderFilter asc(String name) {
-        return new QueryOrderFilter(name, QueryOrderDirection.Asc);
+    public static QueryOrder asc(String name) {
+        return new QueryOrder(name, QueryOrderDirection.Asc);
     }
 
 }

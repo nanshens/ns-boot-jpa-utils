@@ -2,9 +2,10 @@ package com.example.demo;
 
 import ns.boot.jpa.utils.UtilsApplication;
 import ns.boot.jpa.utils.entity.Customer;
-import ns.boot.jpa.utils.entity.Sex;
+import ns.boot.jpa.utils.entity.SalesOrder;
 import ns.boot.jpa.utils.jpa.Query;
-import ns.boot.jpa.utils.jpa.entity.QueryParamsFilter;
+import ns.boot.jpa.utils.jpa.TestQuery;
+import ns.boot.jpa.utils.jpa.entity.QueryFilter;
 import ns.boot.jpa.utils.repository.AddressRepo;
 import ns.boot.jpa.utils.repository.CustomerRepo;
 import ns.boot.jpa.utils.repository.EmployeeRepo;
@@ -15,9 +16,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
@@ -47,9 +48,10 @@ public class DemoApplicationTests {
 	}
 
 	public List testQuery() {
-		Query<Customer> query = new Query<>();
-		query.and(QueryParamsFilter.gt("code", "3"));
-
-		return customerRepo.findAll(query);
+		Query<SalesOrder> query = new Query<>();
+//		query.leftJoin("address");
+		query.and(QueryFilter.eq("customer.address.id", "1"));
+		TestQuery<SalesOrder> testQuery = new TestQuery<>();
+		return salesOrderRepo.findAll(query);
 	}
 }

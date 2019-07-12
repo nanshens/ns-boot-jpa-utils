@@ -1,15 +1,11 @@
 package ns.boot.jpa.utils.jpa.utils;
 
-
-import ns.boot.jpa.utils.jpa.function.ExceptionFunction;
-
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * @author zn
@@ -134,16 +130,6 @@ public class QueryUtils {
             cs[0] = (char) (enums == StringEnums.upper ? cs[0] - 32 : cs[0] + 32);
         }
         return String.valueOf(cs);
-    }
-
-    public static <T, R> Function<T, R> wrapException(ExceptionFunction<T, R> exceptionFunction) {
-        return t -> {
-            try {
-                return exceptionFunction.apply();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        };
     }
 
 }

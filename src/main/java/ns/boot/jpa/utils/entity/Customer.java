@@ -19,5 +19,6 @@ public class Customer extends BaseEntity{
 	private Integer age;
 	@Enumerated(EnumType.STRING)
 	private Sex sex;
-
+	@OneToOne
+	private Address address;
 }
