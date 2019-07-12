@@ -8,10 +8,10 @@ import ns.boot.jpa.utils.jpa.entity.QueryJoin;
 import ns.boot.jpa.utils.jpa.entity.QueryOrder;
 import ns.boot.jpa.utils.jpa.entity.QueryFilter;
 import ns.boot.jpa.utils.jpa.enums.JoinParams;
-import ns.boot.jpa.utils.jpa.enums.QueryMatchType;
-import ns.boot.jpa.utils.jpa.enums.QueryOrderDirection;
+import ns.boot.jpa.utils.jpa.enums.MatchType;
 import ns.boot.jpa.utils.jpa.utils.QueryUtils;
 import lombok.SneakyThrows;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -22,7 +22,6 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -166,12 +165,9 @@ public class Query<T> implements Specification<T> {
 
 	public Query(Object object) {
 		queryInfoObject = object;
-		QueryInfo queryInfo = object.getClass().getAnnotation(QueryInfo.class);
-		if (queryInfo != null && object != null) {
-			getPageInfo(object);
+		getPageInfo(object);
 //			buildQueryParams(object);
 //			buildFilterValue(object);
-		}
 
 	}
 
@@ -179,7 +175,7 @@ public class Query<T> implements Specification<T> {
 
 	@SneakyThrows
 	private static void initParseMap(){
-		for (QueryMatchType types : QueryMatchType.getAllTypes()) {
+		for (MatchType types : MatchType.getAllTypes()) {
 			if (types.getParamTypes().length == 0) {
 				parseMap.put(types, types.getTargetClass().getMethod(types.getCbName(), types.getPathClass()));
 			}else if (types.getParamTypes().length == 1) {
@@ -247,7 +243,7 @@ public class Query<T> implements Specification<T> {
 
 	private void buildSort(Root<T> root, CriteriaQuery<?> cq, CriteriaBuilder cb) {
 		queryOrders.forEach(order -> {
-			if (order.getDirection().equals(QueryOrderDirection.Asc)) {
+			if (order.getDirection().equals(Sort.Direction.ASC)) {
 				cq.orderBy(cb.asc(buildPath(order.getName(), root)));
 			} else {
 				cq.orderBy(cb.desc(buildPath(order.getName(), root)));
@@ -262,13 +258,13 @@ public class Query<T> implements Specification<T> {
 	}
 
 	@SneakyThrows
-	public Predicate buildPredicate(QueryMatchType matchType, QueryFilter queryFilter, Root<T> root, CriteriaBuilder cb) {
+	public Predicate buildPredicate(MatchType matchType, QueryFilter queryFilter, Root<T> root, CriteriaBuilder cb) {
 		Method method = parseMap.get(matchType);
-		if (matchType.equals(QueryMatchType.IN)) {
+		if (matchType.equals(MatchType.IN)) {
 			return (Predicate) method.invoke(buildPath(queryFilter.getName(), root), queryFilter.getValue());
-		} else if (matchType.equals(QueryMatchType.BETWEEN)) {
+		} else if (matchType.equals(MatchType.BETWEEN)) {
 			return (Predicate) method.invoke(cb, buildPath(queryFilter.getName(), root), ((List) queryFilter.getValue()).get(0), ((List) queryFilter.getValue()).get(1));
-		} else if (matchType.equals(QueryMatchType.ISNOTNULL) || matchType.equals(QueryMatchType.ISNULL)) {
+		} else if (matchType.equals(MatchType.ISNOTNULL) || matchType.equals(MatchType.ISNULL)) {
 			return (Predicate) method.invoke(cb, buildPath(queryFilter.getName(), root));
 		} else {
 			return (Predicate) method.invoke(cb, buildPath(queryFilter.getName(), root), queryFilter.getValue());
@@ -283,7 +279,7 @@ public class Query<T> implements Specification<T> {
 	}
 
 	public void getPageInfo(Object object) {
-		List<Field> fields = QueryUtils.getAllFields(object.getClass(), new ArrayList());
+		List<Field> fields = QueryUtils.getAllFields(object.getClass(), new ArrayList<Field>());
 		List<String> orderDesc = new ArrayList<>();
 		List<String> orderAsc = new ArrayList<>();
 
@@ -310,7 +306,7 @@ public class Query<T> implements Specification<T> {
 								.map(orderFilter -> orderFilter.getName())
 								.collect(Collectors.toList());
 						if (!oldOrders.contains(order) && !QueryUtils.isEmpty(order)) {
-							if (queryOrder.value() == QueryOrderDirection.Desc) {
+							if (queryOrder.value() == Sort.Direction.DESC) {
 								queryOrders.add(QueryOrder.desc(order));
 							} else {
 								queryOrders.add(QueryOrder.asc(order));
@@ -338,7 +334,7 @@ public class Query<T> implements Specification<T> {
 	}
 
 	public void buildQueryParams(Object object) {
-		List<Field> fields = QueryUtils.getAllFields(object.getClass(), new ArrayList());
+		List<Field> fields = QueryUtils.getAllFields(object.getClass(), new ArrayList<Field>());
 		for (Field field : fields) {
 			QueryType queryPage = field.getAnnotation(QueryType.class);
 			if (queryPage != null) {

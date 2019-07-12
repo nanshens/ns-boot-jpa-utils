@@ -1,7 +1,7 @@
 package ns.boot.jpa.utils.jpa.annotations;
 
 
-import ns.boot.jpa.utils.jpa.enums.QueryMatchType;
+import ns.boot.jpa.utils.jpa.enums.MatchType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -11,5 +11,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface QueryType {
-	QueryMatchType value() default QueryMatchType.EQ;
+	MatchType value() default MatchType.EQ;
 }

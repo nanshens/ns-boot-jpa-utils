@@ -3,7 +3,7 @@ package ns.boot.jpa.utils.jpa.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ns.boot.jpa.utils.jpa.enums.QueryMatchType;
+import ns.boot.jpa.utils.jpa.enums.MatchType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,64 +24,64 @@ public  class QueryFilter {
 
     private String name;
     private Object value;
-    private QueryMatchType type;
+    private MatchType type;
 
     public static QueryFilter eq(String name, Object value){
-        return new QueryFilter(name, value, QueryMatchType.EQ);
+        return new QueryFilter(name, value, MatchType.EQ);
     }
 
     public static QueryFilter eq(String name){
-        return new QueryFilter(name, null, QueryMatchType.EQ);
+        return new QueryFilter(name, null, MatchType.EQ);
     }
 
     public static QueryFilter ne(String name, Object value){
-        return new QueryFilter(name, value, QueryMatchType.NE);
+        return new QueryFilter(name, value, MatchType.NE);
     }
 
     public static QueryFilter ne(String name){
-        return new QueryFilter(name, null, QueryMatchType.NE);
+        return new QueryFilter(name, null, MatchType.NE);
     }
 
     public static QueryFilter gt(String name, Object value){
-        return new QueryFilter(name, value, QueryMatchType.GT);
+        return new QueryFilter(name, value, MatchType.GT);
     }
 
     public static QueryFilter gt(String name){
-        return new QueryFilter(name, null, QueryMatchType.GT);
+        return new QueryFilter(name, null, MatchType.GT);
     }
 
     public static QueryFilter lt(String name, Object value){
-        return new QueryFilter(name, value, QueryMatchType.LT);
+        return new QueryFilter(name, value, MatchType.LT);
     }
 
     public static QueryFilter lt(String name){
-        return new QueryFilter(name, null, QueryMatchType.LT);
+        return new QueryFilter(name, null, MatchType.LT);
     }
 
     public static QueryFilter ge(String name, Object value){
-        return new QueryFilter(name, value, QueryMatchType.GE);
+        return new QueryFilter(name, value, MatchType.GE);
     }
 
     public static QueryFilter ge(String name){
-        return new QueryFilter(name, null, QueryMatchType.GE);
+        return new QueryFilter(name, null, MatchType.GE);
     }
 
     public static QueryFilter le(String name, Object value){
-        return new QueryFilter(name, value, QueryMatchType.LE);
+        return new QueryFilter(name, value, MatchType.LE);
     }
     public static QueryFilter le(String name){
-        return new QueryFilter(name, null, QueryMatchType.LE);
+        return new QueryFilter(name, null, MatchType.LE);
     }
 
     public static QueryFilter like(String name, String value){
         if (isNullOrEmpty(value)){
             value = "";
         }
-        return new QueryFilter(name, "%"+value+"%", QueryMatchType.LIKE);
+        return new QueryFilter(name, "%"+value+"%", MatchType.LIKE);
     }
 
     public static QueryFilter like(String name){
-        return new QueryFilter(name, null, QueryMatchType.LIKE);
+        return new QueryFilter(name, null, MatchType.LIKE);
     }
 
     public static QueryFilter in(String name, Object... valueList){
@@ -98,29 +98,29 @@ public  class QueryFilter {
                 values.add(valueList[0]);
             }
         }
-        return new QueryFilter(name, values, QueryMatchType.IN);
+        return new QueryFilter(name, values, MatchType.IN);
     }
 
     public static QueryFilter in(String name){
-        return new QueryFilter(name, null, QueryMatchType.IN);
+        return new QueryFilter(name, null, MatchType.IN);
     }
 
     public static QueryFilter isNull(String name){
-        return new QueryFilter(name,null, QueryMatchType.ISNULL);
+        return new QueryFilter(name,null, MatchType.ISNULL);
     }
 
     public static QueryFilter isNotNull(String name){
-        return new QueryFilter(name, null, QueryMatchType.ISNOTNULL);
+        return new QueryFilter(name, null, MatchType.ISNOTNULL);
     }
 
     public static <T extends Comparable> QueryFilter between(String name, T minValue, T maxValue){
         List<Comparable> valueList = new ArrayList<>();
         valueList.add(minValue);
         valueList.add(maxValue);
-        return new QueryFilter(name, valueList, QueryMatchType.BETWEEN);
+        return new QueryFilter(name, valueList, MatchType.BETWEEN);
     }
 
     public static QueryFilter between(String name){
-        return new QueryFilter(name, null, QueryMatchType.BETWEEN);
+        return new QueryFilter(name, null, MatchType.BETWEEN);
     }
 }

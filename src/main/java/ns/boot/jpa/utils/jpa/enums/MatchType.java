@@ -10,7 +10,7 @@ import java.util.EnumSet;
  * @author zn
  */
 
-public enum QueryMatchType {
+public enum MatchType {
     EQ("equal", CriteriaBuilder.class, Expression.class, Object.class),
     NE("notEqual", CriteriaBuilder.class, Expression.class, Object.class),
     GT("greaterThan", CriteriaBuilder.class, Expression.class, Comparable.class),
@@ -28,7 +28,7 @@ public enum QueryMatchType {
     private Class[] paramTypes;
     private String cbName;
 
-    QueryMatchType(String cbName, Class targetClass, Class pathClass, Class ...paramTypes){
+    MatchType(String cbName, Class targetClass, Class pathClass, Class ...paramTypes){
         this.targetClass = targetClass;
         this.pathClass = pathClass;
         this.cbName = cbName;
@@ -51,7 +51,7 @@ public enum QueryMatchType {
         return targetClass;
     }
 
-    public static EnumSet<QueryMatchType> getAllTypes(){
-        return EnumSet.allOf(QueryMatchType.class);
+    public static EnumSet<MatchType> getAllTypes(){
+        return EnumSet.allOf(MatchType.class);
     }
 }

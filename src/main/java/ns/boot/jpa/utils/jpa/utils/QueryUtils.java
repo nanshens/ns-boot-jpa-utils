@@ -1,5 +1,7 @@
 package ns.boot.jpa.utils.jpa.utils;
 
+import lombok.SneakyThrows;
+
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -32,18 +34,14 @@ public class QueryUtils {
         return temp.toString();
     }
 
+    @SneakyThrows
     public static Object getValue(String field, Object object) {
-        try {
 //			field.setAccessible(true);
-            Method getMethod = new PropertyDescriptor(field, object.getClass()).getReadMethod();
-            return getMethod.invoke(object);
-        } catch (Exception e) {
-            System.out.println("getvalue error");
-        }
-        return null;
+        Method getMethod = new PropertyDescriptor(field, object.getClass()).getReadMethod();
+        return getMethod.invoke(object);
     }
 
-    public static List<Field> getAllFields(Class object, List list) {
+    public static List<Field> getAllFields(Class object, List<Field> list) {
         if (object.getSuperclass() == null) {
             return list;
         } else {

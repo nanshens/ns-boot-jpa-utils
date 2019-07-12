@@ -1,9 +1,10 @@
 package ns.boot.jpa.utils.repository;
 
 import ns.boot.jpa.utils.entity.Item;
-import ns.boot.jpa.utils.jpa.interfaces.ComplexRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ItemRepo extends ComplexRepository<Item, String> {
+public interface ItemRepo extends JpaRepository<Item, String>, JpaSpecificationExecutor<Item> {
 }

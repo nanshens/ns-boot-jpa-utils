@@ -3,7 +3,7 @@ package ns.boot.jpa.utils.jpa.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ns.boot.jpa.utils.jpa.enums.QueryOrderDirection;
+import org.springframework.data.domain.Sort;
 
 /**
  * @author zn
@@ -14,17 +14,17 @@ import ns.boot.jpa.utils.jpa.enums.QueryOrderDirection;
 public class QueryOrder {
 
     private String name;
-    private QueryOrderDirection direction = QueryOrderDirection.Desc;
+    private Sort.Direction direction = Sort.Direction.DESC;
 //    private Sort.Direction d= Sort.Direction.ASC;
 
 
 
     public static QueryOrder desc(String name) {
-        return new QueryOrder(name, QueryOrderDirection.Desc);
+        return new QueryOrder(name, Sort.Direction.DESC);
     }
 
     public static QueryOrder asc(String name) {
-        return new QueryOrder(name, QueryOrderDirection.Asc);
+        return new QueryOrder(name, Sort.Direction.ASC);
     }
 
 }

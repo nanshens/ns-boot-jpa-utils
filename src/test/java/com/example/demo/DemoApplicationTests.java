@@ -54,4 +54,10 @@ public class DemoApplicationTests {
 		TestQuery<SalesOrder> testQuery = new TestQuery<>();
 		return salesOrderRepo.findAll(query);
 	}
+
+	public List testQuery1() {
+
+		Query<SalesOrder> query = new Query<>();
+		return salesOrderRepo.findAll(query);
+	}
 }
