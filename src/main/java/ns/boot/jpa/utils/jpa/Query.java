@@ -1,7 +1,7 @@
 package ns.boot.jpa.utils.jpa;
 
-import ns.boot.jpa.utils.jpa.annotations.QueryInfo;
 import ns.boot.jpa.utils.jpa.annotations.QueryLimit;
+import ns.boot.jpa.utils.jpa.annotations.QueryOrderDire;
 import ns.boot.jpa.utils.jpa.annotations.QueryPage;
 import ns.boot.jpa.utils.jpa.annotations.QueryType;
 import ns.boot.jpa.utils.jpa.entity.QueryJoin;
@@ -49,8 +49,9 @@ public class Query<T> implements Specification<T> {
 	private int page = 0;
 	private int limit = 0;
 	private Object queryInfoObject;
+	private Map<String, Object> queryInfo;
 
-	static{
+	static {
 		initParseMap();
 	}
 
@@ -144,9 +145,13 @@ public class Query<T> implements Specification<T> {
 		orFilters.clear();
 		return this;
 	}
-	
+
 	public Query<T> clearOrders() {
 		queryOrders.clear();
+		return this;
+	}
+
+	public Query<T> addQueryInfo(Object o) {
 		return this;
 	}
 
@@ -169,18 +174,20 @@ public class Query<T> implements Specification<T> {
 //			buildQueryParams(object);
 //			buildFilterValue(object);
 
+		object2Map(object);
 	}
 
-	public Query() {}
+	public Query() {
+	}
 
 	@SneakyThrows
-	private static void initParseMap(){
+	private static void initParseMap() {
 		for (MatchType types : MatchType.getAllTypes()) {
 			if (types.getParamTypes().length == 0) {
 				parseMap.put(types, types.getTargetClass().getMethod(types.getCbName(), types.getPathClass()));
-			}else if (types.getParamTypes().length == 1) {
+			} else if (types.getParamTypes().length == 1) {
 				parseMap.put(types, CriteriaBuilder.class.getMethod(types.getCbName(), types.getPathClass(), types.getParamTypes()[0]));
-			}else if (types.getParamTypes().length == 2) {
+			} else if (types.getParamTypes().length == 2) {
 				parseMap.put(types, CriteriaBuilder.class.getMethod(types.getCbName(), types.getPathClass(), types.getParamTypes()[0], types.getParamTypes()[1]));
 			}
 		}
@@ -272,7 +279,7 @@ public class Query<T> implements Specification<T> {
 	}
 
 	private Predicate parseFilters(List<QueryFilter> queryParams, CriteriaBuilder cb, Root<T> root, Predicate predicate, Enum type) {
-		for(QueryFilter queryFilter : queryParams) {
+		for (QueryFilter queryFilter : queryParams) {
 			predicate = chooseOrAnd(predicate, buildPredicate(queryFilter.getType(), queryFilter, root, cb), cb, type);
 		}
 		return predicate;
@@ -283,11 +290,10 @@ public class Query<T> implements Specification<T> {
 		List<String> orderDesc = new ArrayList<>();
 		List<String> orderAsc = new ArrayList<>();
 
-		try {
-			for (Field field : fields) {
+		for (Field field : fields) {
 				QueryPage queryPage = field.getAnnotation(QueryPage.class);
 				QueryLimit queryLimit = field.getAnnotation(QueryLimit.class);
-				ns.boot.jpa.utils.jpa.annotations.QueryOrder queryOrder = field.getAnnotation(ns.boot.jpa.utils.jpa.annotations.QueryOrder.class);
+				QueryOrderDire queryOrder = field.getAnnotation(QueryOrderDire.class);
 
 				if (queryPage != null) {
 					page = (int) QueryUtils.getValue(field.getName(), object);
@@ -315,10 +321,6 @@ public class Query<T> implements Specification<T> {
 					}
 				}
 			}
-		} catch (Exception e) {
-			System.out.println("getPageInfo error");
-		}
-
 		System.out.println(page);
 		System.out.println(limit);
 	}
@@ -349,12 +351,37 @@ public class Query<T> implements Specification<T> {
 								.toString();
 					}
 				}
-				andFilters.add(new QueryFilter(name,null, queryPage.value()));
+				andFilters.add(new QueryFilter(name, null, queryPage.value()));
 			}
 		}
 	}
 
 	public void autoJoin() {
 		//base on queryinfo field auto join
+	}
+
+	public void object2Map(Object o) {
+		List<Field> fields = QueryUtils.getAllFields(o.getClass(), new ArrayList<Field>());
+		List<String> orderDesc = new ArrayList<>();
+		List<String> orderAsc = new ArrayList<>();
+
+		for (Field field : fields) {
+			QueryPage queryPage = field.getAnnotation(QueryPage.class);
+			QueryLimit queryLimit = field.getAnnotation(QueryLimit.class);
+			QueryOrderDire queryOrder = field.getAnnotation(QueryOrderDire.class);
+
+			if (queryPage != null) {
+				page = (int) QueryUtils.getValue(field.getName(), o);
+				continue;
+			}
+
+			if (queryLimit != null) {
+				limit = (int) QueryUtils.getValue(field.getName(), o);
+				continue;
+			}
+			if (queryOrder != null) {
+				List<String> orders = (List<String>) QueryUtils.getValue(field.getName(), o);
+			}
+		}
 	}
 }
