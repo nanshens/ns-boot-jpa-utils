@@ -381,6 +381,13 @@ public class Query<T> implements Specification<T> {
 			}
 			if (queryOrder != null) {
 				List<String> orders = (List<String>) QueryUtils.getValue(field.getName(), o);
+				for (String order : orders) {
+					if (queryOrder.value() == Sort.Direction.DESC) {
+						queryOrders.add(QueryOrder.desc(order));
+					} else {
+						queryOrders.add(QueryOrder.asc(order));
+					}
+				}
 			}
 		}
 	}
