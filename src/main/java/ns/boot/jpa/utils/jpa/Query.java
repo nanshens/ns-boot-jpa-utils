@@ -46,9 +46,6 @@ public class Query<T> implements Specification<T> {
 	private Map<String, Join> joinMap = new HashMap<>();
 	private static Map<Enum, Method> parseMap = new HashMap<>();
 	private static Map<Enum, Method> parseJoinMap = new HashMap<>();
-	private int page = 0;
-	private int limit = 0;
-	private Object queryInfoObject;
 	private Map<String, Object> queryInfo;
 
 	static {
@@ -169,12 +166,12 @@ public class Query<T> implements Specification<T> {
 	}
 
 	public Query(Object object) {
-		queryInfoObject = object;
-		getPageInfo(object);
-//			buildQueryParams(object);
-//			buildFilterValue(object);
+//		queryInfoObject = object;
+//		getPageInfo(object);
+//		buildQueryParams(object);
+//		buildFilterValue(object);
 
-		object2Map(object);
+		queryInfo = QueryUtils.objectMap(object);
 	}
 
 	public Query() {
@@ -204,10 +201,10 @@ public class Query<T> implements Specification<T> {
 //		criteriaQuery.multiselect(root.get("status"));
 //		criteriaQuery.groupBy(root.get("status"));
 		addJoin(joinFilters, root);
-		if (queryInfoObject != null) {
-			buildQueryParams(queryInfoObject);
-			buildFilterValue(queryInfoObject);
-		}
+//		if (queryInfoObject != null) {
+//			buildQueryParams(queryInfoObject);
+//			buildFilterValue(queryInfoObject);
+//		}
 		//Order order = criteriaBuilder.asc(root.get("customer").get("balance"));
 		//Order order1 = criteriaBuilder.asc(root.get("finalPrice"));
 		//criteriaQuery.orderBy(order);//排序先后决定权值
@@ -291,19 +288,8 @@ public class Query<T> implements Specification<T> {
 		List<String> orderAsc = new ArrayList<>();
 
 		for (Field field : fields) {
-				QueryPage queryPage = field.getAnnotation(QueryPage.class);
-				QueryLimit queryLimit = field.getAnnotation(QueryLimit.class);
 				QueryOrderDire queryOrder = field.getAnnotation(QueryOrderDire.class);
 
-				if (queryPage != null) {
-					page = (int) QueryUtils.getValue(field.getName(), object);
-					continue;
-				}
-
-				if (queryLimit != null) {
-					limit = (int) QueryUtils.getValue(field.getName(), object);
-					continue;
-				}
 				if (queryOrder != null) {
 					List<String> orders = (List<String>) QueryUtils.getValue(field.getName(), object);
 					if (orders == null) continue;
@@ -321,8 +307,6 @@ public class Query<T> implements Specification<T> {
 					}
 				}
 			}
-		System.out.println(page);
-		System.out.println(limit);
 	}
 
 	public void buildFilterValue(Object object) {
@@ -360,35 +344,16 @@ public class Query<T> implements Specification<T> {
 		//base on queryinfo field auto join
 	}
 
-	public void object2Map(Object o) {
-		List<Field> fields = QueryUtils.getAllFields(o.getClass(), new ArrayList<Field>());
-		List<String> orderDesc = new ArrayList<>();
-		List<String> orderAsc = new ArrayList<>();
-
-		for (Field field : fields) {
-			QueryPage queryPage = field.getAnnotation(QueryPage.class);
-			QueryLimit queryLimit = field.getAnnotation(QueryLimit.class);
-			QueryOrderDire queryOrder = field.getAnnotation(QueryOrderDire.class);
-
-			if (queryPage != null) {
-				page = (int) QueryUtils.getValue(field.getName(), o);
-				continue;
-			}
-
-			if (queryLimit != null) {
-				limit = (int) QueryUtils.getValue(field.getName(), o);
-				continue;
-			}
-			if (queryOrder != null) {
-				List<String> orders = (List<String>) QueryUtils.getValue(field.getName(), o);
-				for (String order : orders) {
-					if (queryOrder.value() == Sort.Direction.DESC) {
-						queryOrders.add(QueryOrder.desc(order));
-					} else {
-						queryOrders.add(QueryOrder.asc(order));
-					}
-				}
-			}
+	public void buildQueryFilter() {
+		if (queryInfo.containsKey("orderDesc")) {
+			queryOrders.add(QueryOrder.desc(queryInfo.get("orderDesc").toString()));
 		}
+		if (queryInfo.containsKey("orderAsc")) {
+			queryOrders.add(QueryOrder.desc(queryInfo.get("orderAsc").toString()));
+		}
+
+		queryInfo.forEach((k,v)-> {
+			andFilters.add(QueryFilter.like(k, v.toString()));
+		});
 	}
 }

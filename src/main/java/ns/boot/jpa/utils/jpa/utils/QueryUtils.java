@@ -6,8 +6,12 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 /**
  * @author zn
@@ -36,19 +40,66 @@ public class QueryUtils {
 
     @SneakyThrows
     public static Object getValue(String field, Object object) {
-//			field.setAccessible(true);
+//        field.setAccessible(true);
         Method getMethod = new PropertyDescriptor(field, object.getClass()).getReadMethod();
         return getMethod.invoke(object);
     }
 
-    public static List<Field> getAllFields(Class object, List<Field> list) {
-        if (object.getSuperclass() == null) {
+    public static List<Field> getAllFields(Class clz, List<Field> list) {
+        if (clz.getSuperclass() == null) {
             return list;
         } else {
-            list.addAll(Arrays.asList(object.getDeclaredFields()));
-            return getAllFields(object.getSuperclass(), list);
+            list.addAll(Arrays.asList(clz.getDeclaredFields()));
+            return getAllFields(clz.getSuperclass(), list);
         }
     }
+
+    public static Map<String, Object> getAllFields(Class clz, Map<String, Object> map, String prefix) {
+        if (clz.getSuperclass() == null) {
+            return map;
+        } else {
+            Field[] fields = clz.getDeclaredFields();
+            for (Field field : fields) {
+               if (isBaseType(field.getType())){
+                   map.put(prefix + field.getName(), null);
+               }else {
+                   return getAllFields(field.getType(), map, changeFirstChar(field.getType().getSimpleName(), StringEnums.lower) + ".");
+               }
+            }
+            return getAllFields(clz.getSuperclass(), map, changeFirstChar(clz.getSimpleName(), StringEnums.lower) + ".");
+        }
+    }
+
+    public static Map<String, Object> objectMap(Object o) {
+        Map<String, Object> map = new HashMap<>();
+        Stack<Field> stack = new Stack<>();
+        Stack<Object> objects = new Stack<>();
+
+        for (Field field : getAllFields(o.getClass(), new ArrayList<>())) {
+            stack.push(field);
+            objects.push(o);
+        }
+
+        while (!stack.empty()){
+            Field s = stack.pop();
+            Object po = objects.pop();
+            if (po == null ) continue;
+            String prefix = po == o ? "" : changeFirstChar(po.getClass().getSimpleName(), StringEnums.lower) + ".";
+
+            if (isBaseType(s.getType())) {
+                Object v = getValue(s.getName(), po);
+                if (v == null) continue;
+                map.put(prefix + s.getName(), v);
+            }else {
+                for (Field field : getAllFields(s.getType(), new ArrayList<>())) {
+                    stack.push(field);
+                    objects.push(getValue(s.getName(), o));
+                }
+            }
+        }
+        return map;
+    }
+
 
     public static Object getClassTypeValue(Class<?> typeClass, List<Object> list) {
         Object value = null;
@@ -124,10 +175,13 @@ public class QueryUtils {
 
     public static String changeFirstChar(String str, StringEnums enums) {
         char[] cs=str.toCharArray();
-        if ((cs[0] > 'A' && cs[0] < 'Z') || (cs[0] > 'a' && cs[0] < 'z' )) {
+        if ((cs[0] >= 'A' && cs[0] <= 'Z') || (cs[0] >= 'a' && cs[0] <= 'z' )) {
             cs[0] = (char) (enums == StringEnums.upper ? cs[0] - 32 : cs[0] + 32);
         }
         return String.valueOf(cs);
     }
 
+    public static boolean isBaseType(Class c) {
+        return c != null && c.getClassLoader() == null;
+    }
 }
