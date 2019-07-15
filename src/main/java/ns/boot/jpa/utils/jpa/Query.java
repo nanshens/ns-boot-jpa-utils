@@ -52,6 +52,9 @@ public class Query<T> implements Specification<T> {
 		initParseMap();
 	}
 
+	public Query<T> setType(String name, MatchType type) {
+		return this;
+	}
 	public Query<T> and(QueryFilter... queryFilters) {
 		andFilters.addAll(Arrays.asList(queryFilters));
 		return this;
@@ -353,7 +356,12 @@ public class Query<T> implements Specification<T> {
 		}
 
 		queryInfo.forEach((k,v)-> {
-			andFilters.add(QueryFilter.like(k, v.toString()));
+			andFilters.add(new QueryFilter(k, v));
 		});
 	}
+
+	/*
+	* maybe changefilter list to map to support settype
+	*
+	* */
 }

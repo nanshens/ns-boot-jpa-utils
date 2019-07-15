@@ -26,6 +26,11 @@ public  class QueryFilter {
     private Object value;
     private MatchType type;
 
+    public QueryFilter(String name, Object value) {
+        this.name = name;
+        this.value = value;
+    }
+
     public static QueryFilter eq(String name, Object value){
         return new QueryFilter(name, value, MatchType.EQ);
     }
@@ -120,7 +125,28 @@ public  class QueryFilter {
         return new QueryFilter(name, valueList, MatchType.BETWEEN);
     }
 
+    public static <T extends Comparable> QueryFilter between(String name, Object... valueList){
+        List values = new ArrayList();
+
+        if (valueList.length > 1) {
+            values.add(Arrays.asList(valueList));
+        } else if (valueList.length == 1) {
+            if (valueList[0] instanceof Collection){
+                values = (List) valueList[0];
+            } else if (valueList[0] instanceof Object[]) {
+                values.add(Arrays.asList(valueList[0]));
+            }else {
+                values.add(valueList[0]);
+            }
+        }
+        return new QueryFilter(name, values, MatchType.BETWEEN);
+    }
+
     public static QueryFilter between(String name){
         return new QueryFilter(name, null, MatchType.BETWEEN);
+    }
+
+    public static QueryFilter noType(String name, Object value){
+        return new QueryFilter(name, value);
     }
 }
