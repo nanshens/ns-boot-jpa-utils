@@ -345,16 +345,8 @@ public class Query<T> implements Specification<T> {
 	}
 
 	public void buildQueryFilter() {
-		if (queryInfo.containsKey("orderDesc")) {
-			queryOrders.add(QueryOrder.desc(queryInfo.get("orderDesc").toString()));
-		}
-		if (queryInfo.containsKey("orderAsc")) {
-			queryOrders.add(QueryOrder.desc(queryInfo.get("orderAsc").toString()));
-		}
-
-		queryInfo.forEach((k, v) -> {
-			andFilters.add(new QueryFilter(k, v));
-		});
+		queryOrders.addAll((List<QueryOrder>) queryInfo.get("orders"));
+		andFilters.addAll((List<QueryFilter>) queryInfo.get("andFilters"));
 	}
 
 	/*
