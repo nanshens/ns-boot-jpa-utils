@@ -6,6 +6,7 @@ import ns.boot.jpa.utils.entity.SalesOrder;
 import ns.boot.jpa.utils.jpa.Query;
 import ns.boot.jpa.utils.jpa.TestQuery;
 import ns.boot.jpa.utils.jpa.entity.QueryFilter;
+import ns.boot.jpa.utils.queryinfo.SalesOrderQueryInfo;
 import ns.boot.jpa.utils.repository.AddressRepo;
 import ns.boot.jpa.utils.repository.CustomerRepo;
 import ns.boot.jpa.utils.repository.EmployeeRepo;
@@ -56,6 +57,9 @@ public class DemoApplicationTests {
 	}
 
 	public List testQuery1() {
+		SalesOrderQueryInfo queryInfo = new SalesOrderQueryInfo();
+		queryInfo.setLimit(1);
+		queryInfo.setPage(1);
 
 		Query<SalesOrder> query = new Query<>();
 		return salesOrderRepo.findAll(query);

@@ -1,6 +1,11 @@
 package ns.boot.jpa.utils.jpa.utils;
 
 import lombok.SneakyThrows;
+import ns.boot.jpa.utils.jpa.annotations.QueryOrderDire;
+import ns.boot.jpa.utils.jpa.annotations.QueryType;
+import ns.boot.jpa.utils.jpa.entity.QueryFilter;
+import ns.boot.jpa.utils.jpa.entity.QueryOrder;
+import org.springframework.data.domain.Sort;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
@@ -70,33 +75,64 @@ public class QueryUtils {
         }
     }
 
+    /*
+     * need test enums
+     *
+     * */
     public static Map<String, Object> objectMap(Object o) {
         Map<String, Object> map = new HashMap<>();
         Stack<Field> stack = new Stack<>();
         Stack<Object> objects = new Stack<>();
+        List<QueryFilter> afs = new ArrayList<>();
+        List<QueryOrder> qo = new ArrayList<>();
 
         for (Field field : getAllFields(o.getClass(), new ArrayList<>())) {
             stack.push(field);
             objects.push(o);
         }
 
-        while (!stack.empty()){
+        while (!stack.empty()) {
             Field s = stack.pop();
             Object po = objects.pop();
-            if (po == null ) continue;
+            if (po == null) continue;
             String prefix = po == o ? "" : changeFirstChar(po.getClass().getSimpleName(), StringEnums.lower) + ".";
 
             if (isBaseType(s.getType())) {
                 Object v = getValue(s.getName(), po);
-                if (v == null) continue;
-                map.put(prefix + s.getName(), v);
-            }else {
-                for (Field field : getAllFields(s.getType(), new ArrayList<>())) {
+                String n = prefix + s.getName();
+                if (v == null || "page".equals(n) || "limit".equals(n)) continue;
+
+                QueryType queryType = s.getAnnotation(QueryType.class);
+                QueryOrderDire queryOrderDire = s.getAnnotation(QueryOrderDire.class);
+
+                if ("orderDesc".equals(n) || (queryOrderDire != null && queryOrderDire.value() == Sort.Direction.DESC)) {
+                    for (String od : ((List<String>) v)) {
+                        qo.add(QueryOrder.desc(od));
+                    }
+                    continue;
+                }
+
+                if ("orderAsc".equals(n) || (queryOrderDire != null && queryOrderDire.value() == Sort.Direction.ASC)) {
+                    for (String oa : ((List<String>) v)) {
+                        qo.add(QueryOrder.asc(oa));
+                    }
+                    continue;
+                }
+
+                if (queryType != null) {
+                    afs.add(new QueryFilter(n, v, queryType.value()));
+                }else {
+                    afs.add(QueryFilter.ge(n, v));
+                }
+            } else {
+                for (Field field : QueryUtils.getAllFields(s.getType(), new ArrayList<>())) {
                     stack.push(field);
-                    objects.push(getValue(s.getName(), o));
+                    objects.push(QueryUtils.getValue(s.getName(), o));
                 }
             }
         }
+        map.put("andFilters", afs);
+        map.put("orders", qo);
         return map;
     }
 

@@ -16,6 +16,7 @@ import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -55,6 +56,10 @@ public class TestQuery<T> implements Specification<T> {
 		queryInfo.setNum(1);
 		queryInfo.setId("123");
 		queryInfo.setCreateBy("zn");
+		queryInfo.setLimit(1);
+		queryInfo.setPage(1);
+		queryInfo.setOrderAsc(Arrays.asList("id","code"));
+		queryInfo.setOrderDesc(Arrays.asList("num","customer"));
 //		Map<String, Object> field11 = QueryUtils.getAllFields(queryInfo.getClass(), new HashMap<>(), "");
 //		field11.forEach((k,v) -> System.out.println(k + "  " + v));
 		Map map = QueryUtils.objectMap(queryInfo);

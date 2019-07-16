@@ -52,9 +52,6 @@ public class Query<T> implements Specification<T> {
 		initParseMap();
 	}
 
-	public Query<T> setType(String name, MatchType type) {
-		return this;
-	}
 	public Query<T> and(QueryFilter... queryFilters) {
 		andFilters.addAll(Arrays.asList(queryFilters));
 		return this;
@@ -291,25 +288,25 @@ public class Query<T> implements Specification<T> {
 		List<String> orderAsc = new ArrayList<>();
 
 		for (Field field : fields) {
-				QueryOrderDire queryOrder = field.getAnnotation(QueryOrderDire.class);
+			QueryOrderDire queryOrder = field.getAnnotation(QueryOrderDire.class);
 
-				if (queryOrder != null) {
-					List<String> orders = (List<String>) QueryUtils.getValue(field.getName(), object);
-					if (orders == null) continue;
-					for (String order : orders) {
-						List<String> oldOrders = queryOrders.stream()
-								.map(orderFilter -> orderFilter.getName())
-								.collect(Collectors.toList());
-						if (!oldOrders.contains(order) && !QueryUtils.isEmpty(order)) {
-							if (queryOrder.value() == Sort.Direction.DESC) {
-								queryOrders.add(QueryOrder.desc(order));
-							} else {
-								queryOrders.add(QueryOrder.asc(order));
-							}
+			if (queryOrder != null) {
+				List<String> orders = (List<String>) QueryUtils.getValue(field.getName(), object);
+				if (orders == null) continue;
+				for (String order : orders) {
+					List<String> oldOrders = queryOrders.stream()
+							.map(orderFilter -> orderFilter.getName())
+							.collect(Collectors.toList());
+					if (!oldOrders.contains(order) && !QueryUtils.isEmpty(order)) {
+						if (queryOrder.value() == Sort.Direction.DESC) {
+							queryOrders.add(QueryOrder.desc(order));
+						} else {
+							queryOrders.add(QueryOrder.asc(order));
 						}
 					}
 				}
 			}
+		}
 	}
 
 	public void buildFilterValue(Object object) {
@@ -355,13 +352,16 @@ public class Query<T> implements Specification<T> {
 			queryOrders.add(QueryOrder.desc(queryInfo.get("orderAsc").toString()));
 		}
 
-		queryInfo.forEach((k,v)-> {
+		queryInfo.forEach((k, v) -> {
 			andFilters.add(new QueryFilter(k, v));
 		});
 	}
 
 	/*
-	* maybe changefilter list to map to support settype
-	*
-	* */
+	 * todo
+	 *
+	 * add text resovler same to apijson or graphql
+	 * maybe change jar to spring-boot-starter
+	 *
+	 * */
 }
