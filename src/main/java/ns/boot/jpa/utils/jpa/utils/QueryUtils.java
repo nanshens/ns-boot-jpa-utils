@@ -82,24 +82,27 @@ public class QueryUtils {
     public static Map<String, Object> objectMap(Object o) {
         Map<String, Object> map = new HashMap<>();
         Stack<Field> stack = new Stack<>();
-        Stack<Object> objects = new Stack<>();
+        Stack<Object> object = new Stack<>();
+        Stack<String> prefix = new Stack<>();
         List<QueryFilter> afs = new ArrayList<>();
         List<QueryOrder> qo = new ArrayList<>();
 
         for (Field field : getAllFields(o.getClass(), new ArrayList<>())) {
             stack.push(field);
-            objects.push(o);
+            object.push(o);
+            prefix.push("");
         }
 
         while (!stack.empty()) {
             Field s = stack.pop();
-            Object po = objects.pop();
+            Object po = object.pop();
+            String pre = prefix.pop();
             if (po == null) continue;
-            String prefix = po == o ? "" : changeFirstChar(po.getClass().getSimpleName(), StringEnums.lower) + ".";
+//            String prefixs = po == o ? "" : changeFirstChar(po.getClass().getSimpleName(), StringEnums.lower) + ".";
 
             if (isBaseType(s.getType())) {
                 Object v = getValue(s.getName(), po);
-                String n = prefix + s.getName();
+                String n = pre + s.getName();
                 if (v == null || "page".equals(n) || "limit".equals(n)) continue;
 
                 QueryType queryType = s.getAnnotation(QueryType.class);
@@ -127,7 +130,8 @@ public class QueryUtils {
             } else {
                 for (Field field : QueryUtils.getAllFields(s.getType(), new ArrayList<>())) {
                     stack.push(field);
-                    objects.push(QueryUtils.getValue(s.getName(), o));
+                    object.push(QueryUtils.getValue(s.getName(), po));
+                    prefix.push(pre + changeFirstChar(QueryUtils.getValue(s.getName(), po).getClass().getSimpleName(), StringEnums.lower) + ".");
                 }
             }
         }
@@ -218,6 +222,6 @@ public class QueryUtils {
     }
 
     public static boolean isBaseType(Class c) {
-        return c != null && c.getClassLoader() == null;
+        return c != null && c.getClassLoader() == null || c.isEnum();
     }
 }

@@ -4,13 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ns.boot.jpa.utils.jpa.enums.MatchType;
+import ns.boot.jpa.utils.jpa.utils.QueryUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-
-import static ns.boot.jpa.utils.jpa.utils.QueryUtils.isNullOrEmpty;
 
 
 /**
@@ -79,7 +78,7 @@ public  class QueryFilter {
     }
 
     public static QueryFilter like(String name, String value){
-        if (isNullOrEmpty(value)){
+        if (QueryUtils.isNullOrEmpty(value)){
             value = "";
         }
         return new QueryFilter(name, "%"+value+"%", MatchType.LIKE);

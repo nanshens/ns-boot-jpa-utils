@@ -1,9 +1,5 @@
 package ns.boot.jpa.utils.jpa;
 
-import ns.boot.jpa.utils.jpa.annotations.QueryLimit;
-import ns.boot.jpa.utils.jpa.annotations.QueryOrderDire;
-import ns.boot.jpa.utils.jpa.annotations.QueryPage;
-import ns.boot.jpa.utils.jpa.annotations.QueryType;
 import ns.boot.jpa.utils.jpa.entity.QueryJoin;
 import ns.boot.jpa.utils.jpa.entity.QueryOrder;
 import ns.boot.jpa.utils.jpa.entity.QueryFilter;
@@ -21,14 +17,12 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 
 /**
@@ -160,9 +154,32 @@ public class Query<T> implements Specification<T> {
 		return this;
 	}
 
-	private void removeNullFilters() {
+	public Query<T> rmAndFilter(String name, int index) {
+		List<Integer> ids = new ArrayList<>();
+		for (int i = 0; i < andFilters.size(); i++) {
+			if (andFilters.get(i).getName().equals(name)) {
+				ids.add(i);
+			}
+		}
+		andFilters.remove(ids.get(index));
+		return this;
+	}
+
+	public Query<T> rmOrFilter(String name, int index) {
+		List<Integer> ids = new ArrayList<>();
+		for (int i = 0; i < orFilters.size(); i++) {
+			if (orFilters.get(i).getName().equals(name)) {
+				ids.add(i);
+			}
+		}
+		orFilters.remove(ids.get(index));
+		return this;
+	}
+
+	private Query<T> removeNullFilters() {
 		andFilters.removeIf(af -> af.getName().equals(null) || af.getName().equals(""));
 		orFilters.removeIf(of -> of.getName().equals(null) || of.getName().equals(""));
+		return this;
 	}
 
 	public Query(Object object) {
@@ -197,17 +214,13 @@ public class Query<T> implements Specification<T> {
 	@Override
 	public Predicate toPredicate(Root<T> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
 		Predicate predicate = null;
-		removeNullFilters();
+		buildQueryFilter();
+//		addJoin(joinFilters, root);
+//		removeNullFilters();
+
 //		criteriaQuery.multiselect(root.get("status"));
 //		criteriaQuery.groupBy(root.get("status"));
-		addJoin(joinFilters, root);
-//		if (queryInfoObject != null) {
-//			buildQueryParams(queryInfoObject);
-//			buildFilterValue(queryInfoObject);
-//		}
-		//Order order = criteriaBuilder.asc(root.get("customer").get("balance"));
-		//Order order1 = criteriaBuilder.asc(root.get("finalPrice"));
-		//criteriaQuery.orderBy(order);//排序先后决定权值
+
 		buildSort(root, criteriaQuery, criteriaBuilder);
 		if (andFilters.size() != 0 && orFilters.size() == 0) {
 			return parseFilters(andFilters, criteriaBuilder, root, predicate, Condition.And);
@@ -282,66 +295,8 @@ public class Query<T> implements Specification<T> {
 		return predicate;
 	}
 
-	public void getPageInfo(Object object) {
-		List<Field> fields = QueryUtils.getAllFields(object.getClass(), new ArrayList<Field>());
-		List<String> orderDesc = new ArrayList<>();
-		List<String> orderAsc = new ArrayList<>();
-
-		for (Field field : fields) {
-			QueryOrderDire queryOrder = field.getAnnotation(QueryOrderDire.class);
-
-			if (queryOrder != null) {
-				List<String> orders = (List<String>) QueryUtils.getValue(field.getName(), object);
-				if (orders == null) continue;
-				for (String order : orders) {
-					List<String> oldOrders = queryOrders.stream()
-							.map(orderFilter -> orderFilter.getName())
-							.collect(Collectors.toList());
-					if (!oldOrders.contains(order) && !QueryUtils.isEmpty(order)) {
-						if (queryOrder.value() == Sort.Direction.DESC) {
-							queryOrders.add(QueryOrder.desc(order));
-						} else {
-							queryOrders.add(QueryOrder.asc(order));
-						}
-					}
-				}
-			}
-		}
-	}
-
-	public void buildFilterValue(Object object) {
-		//根据filtername获取queryinfo的对应属性的值
-		andFilters.forEach(queryFilter -> {
-			queryFilter.setValue(QueryUtils.getValue(QueryUtils.getQueryFilterName(queryFilter.getName()), object));
-		});
-		orFilters.forEach(queryFilter -> {
-			queryFilter.setValue(QueryUtils.getValue(QueryUtils.getQueryFilterName(queryFilter.getName()), object));
-		});
-	}
-
-	public void buildQueryParams(Object object) {
-		List<Field> fields = QueryUtils.getAllFields(object.getClass(), new ArrayList<Field>());
-		for (Field field : fields) {
-			QueryType queryPage = field.getAnnotation(QueryType.class);
-			if (queryPage != null) {
-				String name = field.getName();
-				for (QueryJoin joinFilter : joinFilters) {
-					String orderName = joinFilter.getTable();
-					if (name.contains(orderName)) {
-						String right = name.replaceAll(orderName, "");
-						name = new StringBuilder(orderName)
-								.append(".")
-								.append(QueryUtils.changeFirstChar(right, QueryUtils.StringEnums.lower))
-								.toString();
-					}
-				}
-				andFilters.add(new QueryFilter(name, null, queryPage.value()));
-			}
-		}
-	}
-
 	public void autoJoin() {
-		//base on queryinfo field auto join
+		//base on ns.boot.jpa.utils.queryinfo field auto join
 	}
 
 	public void buildQueryFilter() {
