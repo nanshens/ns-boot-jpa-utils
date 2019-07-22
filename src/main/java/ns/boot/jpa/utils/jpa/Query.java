@@ -20,6 +20,7 @@ import javax.persistence.criteria.Root;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -300,8 +301,10 @@ public class Query<T> implements Specification<T> {
 	}
 
 	public void buildQueryFilter() {
-		queryOrders.addAll((List<QueryOrder>) queryInfo.get("orders"));
-		andFilters.addAll((List<QueryFilter>) queryInfo.get("andFilters"));
+		if (queryInfo != null) {
+			andFilters.addAll((List<QueryFilter>) queryInfo.get("andFilters"));
+			queryOrders.addAll((List<QueryOrder>) queryInfo.get("orders"));
+		}
 	}
 
 	/*
