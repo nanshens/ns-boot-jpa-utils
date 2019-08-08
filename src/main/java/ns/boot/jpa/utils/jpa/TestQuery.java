@@ -55,7 +55,7 @@ public class TestQuery<T> implements Specification<T> {
 		queryInfo.setAddress(a);
 		queryInfo.setNum(1);
 		queryInfo.setId("123");
-		queryInfo.setCreateBy("zn");
+//		queryInfo.setCreateBy("zn");
 		queryInfo.setLimit(1);
 		queryInfo.setPage(1);
 		queryInfo.setOrderAsc(Arrays.asList("id","code"));

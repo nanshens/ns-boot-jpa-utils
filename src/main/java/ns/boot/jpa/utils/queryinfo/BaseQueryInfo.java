@@ -2,6 +2,7 @@ package ns.boot.jpa.utils.queryinfo;
 
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -9,8 +10,8 @@ import java.util.List;
 public abstract class BaseQueryInfo {
 	private String id;
 	private String code;
-	private LocalTime createTime;
-	private String createBy;
+	private LocalDate createDate;
+//	private String createBy;
 	private Integer page;
 	private Integer limit;
 	private List<String> orderDesc;
