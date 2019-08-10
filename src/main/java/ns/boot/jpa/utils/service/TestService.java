@@ -60,7 +60,8 @@ public class TestService extends FindService {
 		JpaQuery query3 = new JpaQuery<Customer>();
 		query3.or(QueryFilter.ge("code", "3")
 				.childAnd(QueryFilter.eq("name", "2"),
-						QueryFilter.eq("address.id", "1"));
+						QueryFilter.eq("address.id", "1"))
+				.or(QueryFilter.ge("code", "3"));
 
 //		4.select * from customer
 //		where code < '4' and (name='2' or address_id ='1');
