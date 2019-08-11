@@ -58,7 +58,7 @@ public class TestService extends FindService {
 //		where code > '3' or (name='2' and address_id ='1');
 
 		JpaQuery query3 = new JpaQuery<Customer>();
-		query3.or(QueryFilter.ge("code", "3")
+		query3.or(QueryFilter.ge("code", "3"))
 				.childAnd(QueryFilter.eq("name", "2"),
 						QueryFilter.eq("address.id", "1"))
 				.or(QueryFilter.ge("code", "3"));
@@ -70,6 +70,28 @@ public class TestService extends FindService {
 		query4.and(QueryFilter.le("code", "4"))
 				.childOr(QueryFilter.eq("name", "2"),
 						QueryFilter.eq("address.id", "1"));
+
+//		5.select * from customer
+//		where code > '3' or (name='2' and address_id ='1') or (f1 = 'v' and f2 = 'v') or f3 ='v';
+		JpaQuery query5 = new JpaQuery<Customer>();
+		query5.or(QueryFilter.gt("code", "3"))
+				.childAnd(QueryFilter.eq("name", "2"),
+						QueryFilter.eq("address.id", "1"))
+				.or(QueryFilter.gt("code", "3"))
+				.childAnd(QueryFilter.eq("name", "2"),
+						QueryFilter.eq("address.id", "1"));
+
+
+//		6.select * from customer
+//		where code > '3' or (name='2' and address_id ='1' and (f1= 'v' or f2= 'v'))
+
+		JpaQuery query6 = new JpaQuery<Customer>();
+		query6.or(QueryFilter.gt("code", "3"))
+				.childAnd(QueryFilter.eq("name", "2"),
+						QueryFilter.eq("address.id", "1"))
+				.childOr(QueryFilter.eq("name", "2"),
+						QueryFilter.eq("address.id", "1"));
+
 
 
 //		re = customerRepo.findAll(query);
